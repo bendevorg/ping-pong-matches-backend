@@ -1,8 +1,11 @@
 /* eslint-disable no-console */
-
+import 'module-alias/register';
 const dotenv = require('dotenv');
 
 dotenv.config();
+
+// Importing so the database authenticates
+import database from '~/models';
 
 const app =
   process.env.NODE_ENV === 'production'

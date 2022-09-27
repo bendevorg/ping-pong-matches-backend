@@ -7,8 +7,6 @@ const routerName = __filename.split(/\\routers|\/routers/)[1].split('.')[0];
 const controllers = retrieveControllers(routerName);
 const schemas = retrieveSchemas(routerName);
 
-//  Example APIs
-router.get('/hi', controllers.hi);
-router.post('/hey', schemas.hey, controllers.hey);
+router.post('/', schemas.setResult, controllers.setResult);
 
 export default router;
