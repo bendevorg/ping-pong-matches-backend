@@ -2,6 +2,7 @@ import {
   Model,
   HasManyGetAssociationsMixin,
   HasManyCreateAssociationMixin,
+  Op,
 } from 'sequelize';
 import sequelize, { Player, Match } from '~/models';
 import schema from './schema';
@@ -9,6 +10,12 @@ import schema from './schema';
 class Team extends Model {
   static async get(id: string): Promise<Team | null> {
     return await Team.findByPk(id);
+  }
+
+  static async getForPlayer(playerId: string): Promise<Team[]> {
+    return await Team.findAll({
+      where: { [Op.or]: [{ playerAId: playerId }, { playerBId: playerId }] },
+    });
   }
 
   static async getForPlayers(
@@ -42,9 +49,9 @@ class Team extends Model {
       ),
     );
     const playerAData = await Player.get(this.playerAId);
-    const playerA = playerAData?.getPublicData();
+    const playerA = await playerAData?.getPublicData();
     const playerBData = await Player.get(this.playerBId);
-    const playerB = playerBData?.getPublicData();
+    const playerB = await playerBData?.getPublicData();
     return {
       id: this.id,
       playerA,

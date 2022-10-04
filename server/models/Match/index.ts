@@ -13,11 +13,11 @@ class Match extends Model {
     return await Match.findByPk(id);
   }
 
-  static async getWins(teamId: string): Promise<number> {
+  static async getWins(teamId: string | string[]): Promise<number> {
     return await Match.count({ where: { teamWonId: teamId } });
   }
 
-  static async getLosses(teamId: string): Promise<number> {
+  static async getLosses(teamId: string | string[]): Promise<number> {
     return await Match.count({
       where: {
         [Op.or]: [{ teamAId: teamId }, { teamBId: teamId }],
@@ -26,7 +26,10 @@ class Match extends Model {
     });
   }
 
-  static async getForTeam(teamId: string, limit: number): Promise<Match[]> {
+  static async getForTeam(
+    teamId: string | string[],
+    limit: number,
+  ): Promise<Match[]> {
     return await Match.findAll({
       where: { [Op.or]: [{ teamAId: teamId }, { teamBId: teamId }] },
       limit,

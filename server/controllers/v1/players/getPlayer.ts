@@ -17,9 +17,15 @@ import { Player } from '~/models';
 
 export default async (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.params;
+  let matches = 10;
+  // @ts-ignore
+  if (req.query && req.query.matches && !isNaN(req.query.matches)) {
+    // @ts-ignore
+    matches = parseInt(req.query.matches);
+  }
   const player = await Player.get(id);
   if (!player) return res.status(404).json({});
   return res.status(200).json({
-    data: player.getPublicData(),
+    data: await player.getPublicData(true, matches),
   });
 };

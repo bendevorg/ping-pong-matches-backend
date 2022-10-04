@@ -15,9 +15,13 @@
 import { NextFunction, Request, Response } from 'express';
 import { Player } from '~/models';
 
-export default async (_req: Request, res: Response, next: NextFunction) => {
-  const players = await Player.getAll();
+export default async (req: Request, res: Response, next: NextFunction) => {
+  const { expanded } = req.query;
+  const playersModels = await Player.getAll();
+  const players = await Promise.all(
+    playersModels.map((player) => player.getPublicData(Boolean(expanded))),
+  );
   return res.status(200).json({
-    data: players.map((player) => player.getPublicData()),
+    data: players,
   });
 };

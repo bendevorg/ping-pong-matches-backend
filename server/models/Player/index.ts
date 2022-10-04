@@ -3,7 +3,7 @@ import {
   HasManyGetAssociationsMixin,
   HasManyCreateAssociationMixin,
 } from 'sequelize';
-import sequelize from '~/models';
+import sequelize, { Match, Team } from '~/models';
 import schema from './schema';
 
 class Player extends Model {
@@ -21,17 +21,33 @@ class Player extends Model {
     return await Player.findAll();
   }
 
-  getPublicData() {
+  async getPublicData(expanded: boolean = false, matchesAmount: number = 0) {
+    if (!expanded) {
+      return {
+        id: this.id,
+        name: this.name,
+      };
+    }
+    const teams = await Team.getForPlayer(this.id);
+    const teamIds = teams.map((team) => team.id);
+    let matches: Array<Match> = [];
+    if (matchesAmount > 0) {
+      const matchesData = await Match.getForTeam(teamIds, matchesAmount);
+      matches = await Promise.all(
+        matchesData.map(async (match) => await match.getPublicData(true)),
+      );
+    }
     return {
       id: this.id,
       name: this.name,
+      wins: await Match.getWins(teamIds),
+      losses: await Match.getLosses(teamIds),
+      matches,
     };
   }
 
   declare id: string;
   declare name: string;
-  // declare getMatches: HasManyGetAssociationsMixin<Character>;
-  // declare createCharacter: HasManyCreateAssociationMixin<Character>;
 }
 
 Player.init(schema, { sequelize });
