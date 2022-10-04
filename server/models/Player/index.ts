@@ -21,6 +21,13 @@ class Player extends Model {
     return await Player.findAll();
   }
 
+  getPublicData() {
+    return {
+      id: this.id,
+      name: this.name,
+    };
+  }
+
   declare id: string;
   declare name: string;
   // declare getMatches: HasManyGetAssociationsMixin<Character>;

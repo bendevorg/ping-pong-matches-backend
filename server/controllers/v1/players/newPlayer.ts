@@ -4,6 +4,7 @@
  * @apiGroup Players
  * @apiVersion 0.0.1
  *
+ * @apiParam {String} id Player's id
  * @apiParam {String} name Player's name
  * @apiParamExample {json} Request-example:
  * {
@@ -37,8 +38,8 @@ export default async (req: Request, res: Response, next: NextFunction) => {
   }
   return res.status(200).json({
     data: {
-      player,
-      teams,
+      ...player.getPublicData(),
+      teams: teams.map(async (team) => await team.getPublicData()),
     },
   });
 };
