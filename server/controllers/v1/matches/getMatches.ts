@@ -12,18 +12,24 @@
     { "data": "example is missing or is not correctly formatted." }
   *
  */
-import { NextFunction, Request, Response } from 'express';
+import { Request, Response } from 'express';
 import { Match } from '~/models';
 
-export default async (req: Request, res: Response, next: NextFunction) => {
+export default async (req: Request, res: Response) => {
   let limit = 100;
+  const { includeFullMatches } = req.query;
   // @ts-ignore
   if (req.query && req.query.limit && !isNaN(req.query.limit)) {
     // @ts-ignore
     limit = parseInt(req.query.limit);
   }
-  const matches = await Match.getAll(limit);
+  const matchesModels = await Match.getAll(limit);
+  const matches = await Promise.all(
+    matchesModels.map(
+      async (match) => await match.getPublicData(Boolean(includeFullMatches)),
+    ),
+  );
   return res.status(200).json({
-    data: matches.map((match) => match.getPublicData()),
+    data: matches,
   });
 };

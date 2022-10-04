@@ -17,9 +17,16 @@ import { Team } from '~/models';
 
 export default async (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.params;
+  let matches = 10;
+  const { includeFullMatches } = req.query;
+  // @ts-ignore
+  if (req.query && req.query.matches && !isNaN(req.query.matches)) {
+    // @ts-ignore
+    matches = parseInt(req.query.matches);
+  }
   const team = await Team.get(id);
   if (!team) return res.status(404).json({});
   return res.status(200).json({
-    data: await team.getPublicData(),
+    data: await team.getPublicData(matches, Boolean(includeFullMatches)),
   });
 };

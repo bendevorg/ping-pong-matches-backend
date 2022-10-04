@@ -6,6 +6,7 @@ import {
 } from 'sequelize';
 import sequelize from '~/models';
 import schema from './schema';
+import { Team } from '~/models';
 
 class Match extends Model {
   static async get(id: string): Promise<Match | null> {
@@ -58,12 +59,25 @@ class Match extends Model {
     return await Match.destroy({ where: { id: latestMatch.id } });
   }
 
-  getPublicData() {
+  async getPublicData(includeFullMatches?: boolean): Promise<any> {
+    if (!includeFullMatches) {
+      return {
+        id: this.id,
+        teamAId: this.teamAId,
+        teamBId: this.teamBId,
+        teamWonId: this.teamWonId,
+        createdAt: this.createdAt,
+      };
+    }
+    const teamA = await Team.get(this.teamAId);
+    const teamB = await Team.get(this.teamBId);
+    if (!teamA || !teamB) return null;
     return {
       id: this.id,
-      teamAId: this.teamAId,
-      teamBId: this.teamBId,
+      teamA: await teamA.getPublicData(),
+      teamB: await teamB.getPublicData(),
       teamWonId: this.teamWonId,
+      createdAt: this.createdAt,
     };
   }
 
@@ -71,6 +85,7 @@ class Match extends Model {
   declare teamAId: string;
   declare teamBId: string;
   declare teamWonId: string;
+  declare createdAt: string;
 }
 
 Match.init(schema, { sequelize });

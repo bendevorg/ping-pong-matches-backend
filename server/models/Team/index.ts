@@ -31,9 +31,16 @@ class Team extends Model {
     return await Team.findAll();
   }
 
-  async getPublicData() {
-    const matchesData = await Match.getForTeam(this.id, 10);
-    const matches = matchesData.map((match) => match.getPublicData());
+  async getPublicData(
+    lastMatches: number = 10,
+    includeFullMatches: boolean = false,
+  ) {
+    const matchesData = await Match.getForTeam(this.id, lastMatches);
+    const matches = await Promise.all(
+      matchesData.map(
+        async (match) => await match.getPublicData(includeFullMatches),
+      ),
+    );
     const playerAData = await Player.get(this.playerAId);
     const playerA = playerAData?.getPublicData();
     const playerBData = await Player.get(this.playerBId);
