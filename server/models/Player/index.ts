@@ -28,8 +28,9 @@ class Player extends Model {
         name: this.name,
       };
     }
-    const teams = await Team.getForPlayer(this.id);
-    const teamIds = teams.map((team) => team.id);
+    const teamsModels = await Team.getForPlayer(this.id);
+    const teams: any[] = teamsModels.map((team) => team.id);
+    const teamIds = teamsModels.map((team) => team.id);
     let matches: Array<Match> = [];
     if (matchesAmount > 0) {
       const matchesData = await Match.getForTeam(teamIds, matchesAmount);
@@ -42,6 +43,7 @@ class Player extends Model {
       name: this.name,
       wins: await Match.getWins(teamIds),
       losses: await Match.getLosses(teamIds),
+      teams,
       matches,
     };
   }
